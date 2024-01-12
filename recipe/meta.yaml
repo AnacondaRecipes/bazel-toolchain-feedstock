@@ -8,7 +8,7 @@ package:
 
 build:
   number: 0
-  skip: true  # [win]
+  skip: true  # [win or s390x]
 
 requirements:
   run_constrained:
