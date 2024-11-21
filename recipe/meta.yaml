@@ -7,7 +7,7 @@ package:
   version: {{ version }}
 
 build:
-  number: 2
+  number: 3
   skip: true  # [win or s390x]
 
 requirements:
@@ -15,8 +15,6 @@ requirements:
     # This can be used without bazel from conda-forge,
     # e.g. when bootstrapping bazel itself.
     - bazel >=6
-    # the crosstool_wrapper_is_not_gcc script uses pipes, which was removed in python 3.13
-    - python <3.13
 
 test:
   requires:
