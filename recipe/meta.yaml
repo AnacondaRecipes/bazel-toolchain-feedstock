@@ -1,5 +1,5 @@
 {% set name = "bazel-toolchain" %}
-{% set version = "0.2.0" %}
+{% set version = "0.3.1" %}
 
 
 package:
@@ -7,14 +7,15 @@ package:
   version: {{ version }}
 
 build:
-  number: 4
-  skip: true  # [win or s390x]
+  number: 0
+  skip: true  # [win]
 
 requirements:
   run_constrained:
     # This can be used without bazel from conda-forge,
     # e.g. when bootstrapping bazel itself.
     - bazel >=6
+    - sed
 
 test:
   requires:
