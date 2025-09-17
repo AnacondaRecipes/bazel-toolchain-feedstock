@@ -306,9 +306,12 @@ def _impl(ctx):
     else:
         cxx_builtin_include_directories = [
             "${CONDA_BUILD_SYSROOT}/usr/include",
-            "${CONDA_PREFIX}/lib/gcc/${HOST}/${COMPILER_VERSION}",
-            "${CONDA_PREFIX}/${HOST}/include/c++/${COMPILER_VERSION}",
+            "${CONDA_PREFIX}/lib/gcc/${HOST}/${GCC_HEADER_VERSION}",
+	    "${CONDA_PREFIX}/${HOST}/include/c++/${GCC_HEADER_VERSION}",
             "${PREFIX}/include",
+	    # Include for clang-headers, should be ignored in gcc builds
+            "${CONDA_PREFIX}/lib/clang/${COMPILER_VERSION}/include/",
+            "${CONDA_PREFIX}/lib/clang/${SHORT_COMPILER_VERSION}/include/",
         ]
 
         if (len("${CUDA_HOME}")):
