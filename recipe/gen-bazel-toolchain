@@ -77,6 +77,7 @@ pushd bazel_toolchain
     export BAZEL_TOOLCHAIN_LIBCXX="stdc++"
     export BAZEL_TOOLCHAIN_AR=$(basename ${AR})
     export GCC_HEADER_VERSION="$(ls ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST})"
+    export BUILD_GCC_HEADER_VERSION="$(ls ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_BUILD})"
     if [[ "${c_compiler}" == "clang" ]]; then
       export CONDA_BUILD_SYSROOT=${CONDA_BUILD_SYSROOT:-${SDKROOT}}
       sed -e "s:\${CLANG}:${CLANG}:" \
@@ -183,6 +184,7 @@ pushd bazel_toolchain
       TARGET_SYSTEM=${BUILD_SYSTEM}
       target_platform=${build_platform}
       PREFIX=${CONDA_PREFIX}
+      GCC_HEADER_VERSION=${BUILD_GCC_HEADER_VERSION:-}
       LD=${LD//${HOST}/${BUILD}}
       CFLAGS="$(echo ${CFLAGS} | sed 's/ -march=[^ ]*//g' | sed 's/ -mcpu=[^ ]*//g' |sed 's/ -mtune=[^ ]*//g')"
       CFLAGS=${CFLAGS//${HOST_PREFIX}/${CONDA_PREFIX}}
