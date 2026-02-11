@@ -1,5 +1,5 @@
 {% set name = "bazel-toolchain" %}
-{% set version = "0.4.1" %}
+{% set version = "0.5.0" %}
 
 
 package:
@@ -14,15 +14,20 @@ requirements:
   run_constrained:
     # This can be used without bazel from conda-forge,
     # e.g. when bootstrapping bazel itself.
-    - bazel >=6
+    - bazel >=9
     - sed
 
-test:
-  requires:
-    - {{ stdlib('c') }}
-    - {{ compiler('c') }}
-    - {{ compiler('cxx') }}
-    - bazel
+# The following packages are incompatible
+# ├─ bazel-toolchain =0.5.0 h3dc6235_0 is installable and it requires
+# │  └─ bazel >=9 *, which can be installed;
+# └─ bazel =* * is not installable because it conflicts with any installable versions previously reported.
+# Disable tests until bazel 9 is not available on main channel.
+# test:
+#   requires:
+#     - {{ stdlib('c') }}
+#     - {{ compiler('c') }}
+#     - {{ compiler('cxx') }}
+#     - bazel
 
 about:
   home: https://github.com/conda-forge/bazel-toolchain-feedstock
