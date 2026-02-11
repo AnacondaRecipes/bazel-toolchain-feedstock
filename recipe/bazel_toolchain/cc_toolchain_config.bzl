@@ -13,6 +13,8 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
 
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl",
      "ACTION_NAMES")
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
 
 def _impl(ctx):
     tool_paths = [
@@ -27,10 +29,6 @@ def _impl(ctx):
         tool_path(
             name = "ar",
             path = "${CONDA_PREFIX}/bin/${AR}",
-        ),
-        tool_path(
-            name = "patchelf",
-            path = "${CONDA_PREFIX}/bin/patchelf",
         ),
         tool_path(
             name = "cpp",
@@ -150,8 +148,6 @@ def _impl(ctx):
     if "TARGET_PLATFORM".startswith("osx"):
         toolchain_include_directories_flags = [
             "-isystem",
-            "${PREFIX}/include",
-            "-isystem",
             "${CONDA_PREFIX}/include/c++/v1",
             "-isystem",
             "${CONDA_PREFIX}/lib/clang/${COMPILER_VERSION}/include",
@@ -159,6 +155,8 @@ def _impl(ctx):
             "${CONDA_BUILD_SYSROOT}/usr/include",
             "-isystem",
             "${CONDA_BUILD_SYSROOT}/System/Library/Frameworks",
+            "-isystem",
+            "${PREFIX}/include",
         ]
     else:
         toolchain_include_directories_flags = [
