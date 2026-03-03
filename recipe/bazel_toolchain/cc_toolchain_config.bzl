@@ -148,6 +148,8 @@ def _impl(ctx):
     if "TARGET_PLATFORM".startswith("osx"):
         toolchain_include_directories_flags = [
             "-isystem",
+            "${PREFIX}/include",
+            "-isystem",
             "${CONDA_PREFIX}/include/c++/v1",
             "-isystem",
             "${CONDA_PREFIX}/lib/clang/${COMPILER_VERSION}/include",
@@ -155,8 +157,6 @@ def _impl(ctx):
             "${CONDA_BUILD_SYSROOT}/usr/include",
             "-isystem",
             "${CONDA_BUILD_SYSROOT}/System/Library/Frameworks",
-            "-isystem",
-            "${PREFIX}/include",
         ]
     else:
         toolchain_include_directories_flags = [
