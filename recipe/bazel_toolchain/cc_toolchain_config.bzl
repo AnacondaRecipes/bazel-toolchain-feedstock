@@ -13,6 +13,8 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
 
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl",
      "ACTION_NAMES")
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
 
 def _impl(ctx):
     tool_paths = [
@@ -27,10 +29,6 @@ def _impl(ctx):
         tool_path(
             name = "ar",
             path = "${CONDA_PREFIX}/bin/${AR}",
-        ),
-        tool_path(
-            name = "patchelf",
-            path = "${CONDA_PREFIX}/bin/patchelf",
         ),
         tool_path(
             name = "cpp",
