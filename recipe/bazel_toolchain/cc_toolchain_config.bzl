@@ -13,6 +13,8 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
 
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl",
      "ACTION_NAMES")
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
 
 def _impl(ctx):
     tool_paths = [
@@ -311,6 +313,9 @@ def _impl(ctx):
         cxx_builtin_include_directories = [
             "${CONDA_BUILD_SYSROOT}/usr/include",
             "${CONDA_PREFIX}/lib/gcc/${HOST}/${GCC_HEADER_VERSION}",
+	    "${CONDA_PREFIX}/lib/gcc/${HOST}/${GCC_HEADER_VERSION}/include/c++",
+	    "${CONDA_PREFIX}/lib/gcc/${HOST}/${GCC_HEADER_VERSION}/include/c++/${HOST}",
+	    "${CONDA_PREFIX}/lib/gcc/${HOST}/${GCC_HEADER_VERSION}/include/c++/backward",
 	    "${CONDA_PREFIX}/${HOST}/include/c++/${GCC_HEADER_VERSION}",
             "${PREFIX}/include",
 	    # Include for clang-headers, should be ignored in gcc builds
