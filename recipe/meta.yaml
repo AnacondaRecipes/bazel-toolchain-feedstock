@@ -42,7 +42,9 @@ about:
       bazel build --crosstool_top=//bazel_toolchain:toolchain --cpu ${TARGET_CPU} …
 
   license: BSD-3-Clause AND Apache-2.0
-  license_file: LICENSE.txt
+  license_file:
+    - LICENSE.txt
+    - LICENSE-APACHE-2.0.txt
   license_family: OTHER
   doc_url: https://github.com/conda-forge/bazel-toolchain-feedstock
   dev_url: https://github.com/conda-forge/bazel-toolchain-feedstock
