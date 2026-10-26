@@ -1,5 +1,5 @@
 {% set name = "bazel-toolchain" %}
-{% set version = "0.4.1" %}
+{% set version = "0.5.6" %}
 
 
 package:
@@ -11,11 +11,12 @@ build:
   skip: true  # [win]
 
 requirements:
+  run:
+    - sed
   run_constrained:
     # This can be used without bazel from conda-forge,
     # e.g. when bootstrapping bazel itself.
-    - bazel >=6
-    - sed
+    - bazel >=7
 
 test:
   requires:
@@ -41,7 +42,9 @@ about:
       bazel build --crosstool_top=//bazel_toolchain:toolchain --cpu ${TARGET_CPU} …
 
   license: BSD-3-Clause AND Apache-2.0
-  license_file: LICENSE.txt
+  license_file:
+    - LICENSE.txt
+    - LICENSE-APACHE-2.0.txt
   license_family: OTHER
   doc_url: https://github.com/conda-forge/bazel-toolchain-feedstock
   dev_url: https://github.com/conda-forge/bazel-toolchain-feedstock

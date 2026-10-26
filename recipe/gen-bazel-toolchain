@@ -2,6 +2,30 @@
 
 set -euxo pipefail
 
+CC=$(command -v "${CC}")
+CC_FOR_BUILD=$(command -v "${CC_FOR_BUILD}")
+
+resolve_gcc_header_version() {
+  local toolchain="$1"
+  shift
+
+  local prefix gcc_dir version
+  for prefix in "$@"; do
+    [[ -n "${prefix}" ]] || continue
+    gcc_dir="${prefix}/lib/gcc/${toolchain}"
+    [[ -d "${gcc_dir}" ]] || continue
+
+    # Prefer the newest GCC version that has a usable C++ headers directory.
+    while IFS= read -r version; do
+      [[ -d "${gcc_dir}/${version}/include/c++" ]] || continue
+      echo "${version}"
+      return 0
+    done < <(ls -1 "${gcc_dir}" | sort -Vr)
+  done
+
+  return 1
+}
+
 function apply_cc_template() {
   # Strip trailing/duplicate whitespace
   CFLAGS=$(echo $CFLAGS | xargs echo -n)
@@ -56,7 +80,7 @@ pushd bazel_toolchain
   fi
   if [[ "${target_platform}" == osx-* ]]; then
     export CONDA_BUILD_SYSROOT=${CONDA_BUILD_SYSROOT:-${SDKROOT}}
-    sed -e "s:\${CLANG}:${CLANG}:" \
+    sed -e "s:\${CLANG}:${CC}:" \
         -e "s:\${INSTALL_NAME_TOOL}:${INSTALL_NAME_TOOL}:" \
         -e "s:\${CONDA_BUILD_SYSROOT}:${CONDA_BUILD_SYSROOT}:" \
         -e "s:\${MACOSX_SDK_VERSION}:${MACOSX_SDK_VERSION:-}:" \
@@ -76,11 +100,29 @@ pushd bazel_toolchain
   else
     export BAZEL_TOOLCHAIN_LIBCXX="stdc++"
     export BAZEL_TOOLCHAIN_AR=$(basename ${AR})
-    export GCC_HEADER_VERSION="$(ls ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST})"
-    export BUILD_GCC_HEADER_VERSION="$(ls ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_BUILD})"
+    TOOLCHAIN_HOST="${CONDA_TOOLCHAIN_HOST:-${HOST}}"
+    TOOLCHAIN_BUILD="${CONDA_TOOLCHAIN_BUILD:-${BUILD:-${HOST}}}"
+    export GCC_HEADER_VERSION="$(
+      resolve_gcc_header_version \
+        "${TOOLCHAIN_HOST}" \
+        "${BUILD_PREFIX:-}" \
+        "${CONDA_PREFIX}" \
+        "${PREFIX}" \
+        || true
+    )"
+    export BUILD_GCC_HEADER_VERSION="$(
+      resolve_gcc_header_version \
+        "${TOOLCHAIN_BUILD}" \
+        "${BUILD_PREFIX:-}" \
+        "${CONDA_PREFIX}" \
+        "${PREFIX}" \
+        || true
+    )"
+    export GCC_HEADER_VERSION="${GCC_HEADER_VERSION:-${BAZEL_TOOLCHAIN_COMPILER_VERSION}}"
+    export BUILD_GCC_HEADER_VERSION="${BUILD_GCC_HEADER_VERSION:-${GCC_HEADER_VERSION}}"
     if [[ "${c_compiler}" == "clang" ]]; then
       export CONDA_BUILD_SYSROOT=${CONDA_BUILD_SYSROOT:-${SDKROOT}}
-      sed -e "s:\${CLANG}:${CLANG}:" \
+      sed -e "s:\${CLANG}:${CC}:" \
           -e "s:\${INSTALL_NAME_TOOL}::" \
           -e "s:\${CONDA_BUILD_SYSROOT}:${CONDA_BUILD_SYSROOT}:" \
           -e "s:\${MACOSX_SDK_VERSION}::" \
@@ -186,10 +228,10 @@ pushd bazel_toolchain
       PREFIX=${CONDA_PREFIX}
       GCC_HEADER_VERSION=${BUILD_GCC_HEADER_VERSION:-}
       LD=${LD//${HOST}/${BUILD}}
-      CFLAGS="$(echo ${CFLAGS} | sed 's/ -march=[^ ]*//g' | sed 's/ -mcpu=[^ ]*//g' |sed 's/ -mtune=[^ ]*//g')"
+      CFLAGS="$(echo " " ${CFLAGS} | sed 's/ -mss[^ ]*//g' | sed 's/ -march=[^ ]*//g' | sed 's/ -mcpu=[^ ]*//g' |sed 's/ -mtune=[^ ]*//g')"
       CFLAGS=${CFLAGS//${HOST_PREFIX}/${CONDA_PREFIX}}
       CPPFLAGS=${CPPFLAGS//${HOST_PREFIX}/${CONDA_PREFIX}}
-      CXXFLAGS="$(echo ${CXXFLAGS} | sed 's/ -march=[^ ]*//g' | sed 's/ -mcpu=[^ ]*//g' |sed 's/ -mtune=[^ ]*//g')"
+      CXXFLAGS="$(echo " " ${CXXFLAGS} | sed 's/ -mss[^ ]*//g' | sed 's/ -march=[^ ]*//g' | sed 's/ -mcpu=[^ ]*//g' |sed 's/ -mtune=[^ ]*//g')"
       CXXFLAGS=${CXXFLAGS//${HOST_PREFIX}/${CONDA_PREFIX}}
       CONDA_BUILD_SYSROOT=${CONDA_BUILD_SYSROOT//${HOST}/${BUILD}}
       LDFLAGS=${LDFLAGS//${HOST_PREFIX}/${CONDA_PREFIX}}
