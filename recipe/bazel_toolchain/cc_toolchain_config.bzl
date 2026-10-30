@@ -308,6 +308,11 @@ def _impl(ctx):
             "${CONDA_PREFIX}/include/c++/v1",
             "${PREFIX}/include",
             "${HOST_PREFIX}/include",
+            # The crosstool bakes in one CONDA_BUILD_SYSROOT, but clang may
+            # resolve headers from a different installed Command Line Tools SDK;
+            # allow that parent prefix so bazel's strict-header validation does
+            # not reject those headers.
+            "/Library/Developer/CommandLineTools/SDKs",
         ]
     else:
         cxx_builtin_include_directories = [
