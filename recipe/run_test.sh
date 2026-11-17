@@ -6,7 +6,7 @@ cp -r ${RECIPE_DIR}/tutorial .
 cd tutorial
 
 # Test that sed will successfully replace this even with :
-export LDFLAGS="asd:kjfg"
+export LDFLAGS="${LDFLAGS} -Wl,-rpath,${CONDA_PREFIX}:${CONDA_PREFIX}"
 
 source gen-bazel-toolchain
 bazel build --logging=6 --subcommands --verbose_failures \
