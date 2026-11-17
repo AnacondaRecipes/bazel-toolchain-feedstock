@@ -5,6 +5,9 @@ set -exuo pipefail
 cp -r ${RECIPE_DIR}/tutorial .
 cd tutorial
 
+# Test that sed will successfully replace this even with :
+export LDFLAGS="asd:kjfg"
+
 source gen-bazel-toolchain
 bazel build --logging=6 --subcommands --verbose_failures \
     --platforms=//bazel_toolchain:target_platform \
